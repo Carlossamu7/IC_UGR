@@ -345,7 +345,7 @@
 ;;; B5) Añadir reglas para que el sistema incluya las estrategia “Si el jugador puede ganar haciendo una jugada y la máquina puede evitarlo, hace la jugada que lo evita”. ;;;
 
 (defrule Evita_ganar_colocando
-	(declare (salience 9998))
+	(declare (salience 9998))                        ; salience bajado
 	?f<- (Turno X)
 	(Fichas_sin_colocar X ?)                         ; a clisp le quedan fichas sin colocar
 	(Puede_ganar_colocando ?i ?j O)                  ; el usuario puede ganar colocando
@@ -357,7 +357,7 @@
 )
 
 (defrule Evita_ganar_colocando_2
-	(declare (salience 9998))
+	(declare (salience 9998))                        ; salience bajado
 	?f<- (Turno X)
 	(Fichas_sin_colocar X ?)                         ; a clisp le quedan fichas sin colocar
 	(Puede_ganar_moviendo ?i ?j O)                   ; el usuario puede ganar colocando
@@ -369,7 +369,7 @@
 )
 
 (defrule Evita_ganar_moviendo
-	(declare (salience 9998))
+	(declare (salience 9998))                        ; salience bajado
 	?f<- (Turno X)
 	(Todas_fichas_en_tablero X)                      ; todas las fichas colocadas
 	(Puede_ganar_colocando ?i1 ?j1 ?i2 ?j2 O)        ; usuario puede ganar moviendo
@@ -382,7 +382,7 @@
 )
 
 (defrule Evita_ganar_moviendo_2
-	(declare (salience 9998))
+	(declare (salience 9998))                        ; salience bajado
 	?f<- (Turno X)
 	(Todas_fichas_en_tablero X)                      ; todas las fichas colocadas
 	(Puede_ganar_moviendo ?i1 ?j1 ?i2 ?j2 O)         ; usuario puede ganar moviendo
@@ -397,16 +397,16 @@
 ;;; Una posible mejora que he detectado es que clisp no mueva fichas que están evitando ganar ;;;
 
 ;(defrule Evita_quitar_ficha_clave
-;	(declare (salience 9997))
+;	(declare (salience 9997))                        ; salience bajado más
 ;	?f<- (Turno X)
 ;	(Todas_fichas_en_tablero X)                      ; todas las fichas colocadas
 ;	(Dos_en_linea ?forma ?i1 ?j1 ?i2 ?j2 O)          ; usuario puede ganar moviendo
 ;	(Conectado ?i2 ?j2 ?forma ?f1 ?c1)               ; la posicion donde gana esta conectada con otra
 ;	(Posicion ?f1 ?c1 X)                             ; donde clisp tiene una ficha
-;  (Posicion ?f2 ?c2 X)                             ; mover otra ficha
-;  (Posicion ?f3 ?c3 " ")                           ; posicion vacia
-;  (Conectado ?f2 ?c2 ? ?f3 ?c3)                    ; y conectada
-;  (test (or (neq ?f1 ?f2) (neq ?c1 ?c2)))
+; (Posicion ?f2 ?c2 X)                             ; mover otra ficha
+; (Posicion ?f3 ?c3 " ")                           ; posicion vacia
+; (Conectado ?f2 ?c2 ? ?f3 ?c3)                    ; y conectada
+; (test (or (neq ?f1 ?f2) (neq ?c1 ?c2)))
 ;=>
 ;	(assert (Juega X ?f2 ?c2 ?f3 ?c3))
 ;	(printout t "Juego mover la ficha de "  ?f2 ?c2 " a " ?f3 ?c3 crlf)
