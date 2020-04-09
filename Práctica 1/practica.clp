@@ -27,7 +27,7 @@
 ;;; Motramos las diferentes Ramas y explicamos el funcionamiento ;;;
 
 (defrule Da_bienvenida
-    (declare (salience 10))
+  (declare (salience 10))
 =>
   (printout t "Bienvenido al sistema de asesoramiento de ramas del Grado en I. Informatica. Las ramas son:" crlf)
   (printout t "- Computacion y Sistemas Inteligentes." crlf)
