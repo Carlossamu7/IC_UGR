@@ -683,7 +683,7 @@
   (not (and (AsigDeseadas ? ?n) (test (eq ?n -1))))
   (SoloConsideradas TRUE)
 =>
-  (printout t "Prefiere asignaturas con mas teoricas o mas practicas (Teorica/Practica/Fin):" crlf)
+  (printout t "Prefiere asignaturas con mas teoricas o mas practicas? (Teorica/Practica/Fin)" crlf)
   (bind ?res (read))
   (while (and (neq ?res Teorica) (neq ?res Practica) (neq ?res Fin))
     (printout t "Respuesta incorrecta. Repita (Teorica/Practica/Fin)." crlf)
