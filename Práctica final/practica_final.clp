@@ -21,9 +21,13 @@
 
 (defmodule MAIN (export ?ALL))
 
-(defmodule RAMAS (import MAIN deftemplate initial-fact))
+(deffacts MAIN::Main
+  (Elige 0)
+)
 
-(defmodule ASIGNATURAS (import MAIN deftemplate initial-fact))
+(defmodule RAMAS (import MAIN ?ALL))
+
+(defmodule ASIGNATURAS (import MAIN ?ALL))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; MENSAJE DE BIENVENIDA AL SISTEMA ;;;
@@ -33,16 +37,17 @@
 
 (defrule MAIN::Da_bienvenida
   (declare (salience 10))
+  ?f <- (Elige 0)
 =>
   (printout t "Bienvenido al sistema de asesoramiento de ramas y asignaturas del Grado en I. Informatica." crlf)
   (printout t "Indique si desea asesoramiento acerca de Ramas (Ramas) o Asignaturas (Asignaturas)." crlf)
-  (focus ASIGNATURAS)
-  ;(bind ?res (read))
-  ;(while (and (neq ?res Ramas) (neq ?res Asignaturas))
-  ;  (printout t "Respuesta incorrecta. Indique si desea asesoramiento acerca de Ramas (Ramas) o Asignaturas (Asignaturas)." crlf)
-  ;  (bind ?res (read)))
-  ;(if (eq ?res Ramas) then (focus RAMAS)
-  ;else (focus ASIGNATURAS))
+  (bind ?res (read))
+  (while (and (neq ?res Ramas) (neq ?res Asignaturas))
+    (printout t "Respuesta incorrecta. Indique si desea asesoramiento acerca de Ramas (Ramas) o Asignaturas (Asignaturas)." crlf)
+    (bind ?res (read)))
+  (retract ?f)
+  (if (eq ?res Ramas) then (assert (Elige 1)) (focus RAMAS)
+  else (assert (Elige 2)) (focus ASIGNATURAS))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -57,6 +62,20 @@
   (Rama Ingenieria_de_Computadores)
   (Rama Sistemas_de_Informacion)
   (Rama Tecnologias_de_la_Informacion)
+)
+
+;; Bienvenida al sistema de asesoración de Ramas.
+
+(defrule RAMAS::Da_bienvenida_Ramas
+  (declare (salience 10))
+=>
+  (printout t "Bienvenido al sistema de asesoramiento de ramas del Grado en I. Informatica. Las ramas son:" crlf)
+  (printout t "- Computacion y Sistemas Inteligentes." crlf)
+  (printout t "- Ingenieria del Software." crlf)
+  (printout t "- Ingenieria de Computadores." crlf)
+  (printout t "- Sistemas de Informacion." crlf)
+  (printout t "- Tecnologias de la Informacion." crlf)
+  (printout t "En cualquier momento puede responder Fin para obtener el consejo sin responder el resto de preguntas." crlf)
 )
 
 ;;; Si le gustan las matematicas ;;;
@@ -221,28 +240,23 @@
 ;;;   CONSEJOS DEL SISTEMA   ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Bienvenida al sistema de asesoración de Ramas.
-
-(defrule RAMAS::Da_bienvenida_Ramas
-  (declare (salience 10))
-=>
-  (printout t "Bienvenido al sistema de asesoramiento de ramas del Grado en I. Informatica. Las ramas son:" crlf)
-  (printout t "- Computacion y Sistemas Inteligentes." crlf)
-  (printout t "- Ingenieria del Software." crlf)
-  (printout t "- Ingenieria de Computadores." crlf)
-  (printout t "- Sistemas de Informacion." crlf)
-  (printout t "- Tecnologias de la Informacion." crlf)
-  (printout t "En cualquier momento puede responder Fin para obtener el consejo sin responder el resto de preguntas." crlf)
-)
-
 ;;; Método para imprimir un consejo ;;;
 
 (defrule RAMAS::imprime_consejo
+  (Elige ?e)
   (Rama ?rama)          ; sirve para asegurarse de que la rama existe
   (Consejo ?rama ?texto ?experto)
 =>
+  (printout t crlf)
   (printout t ?experto " te aconseja la Rama de " ?rama "." crlf)
   (printout t "Motivo: " ?texto "." crlf)
+  (printout t crlf)
+  (if (neq ?e 2) then (printout t "Quiere consejo acerca de asignaturas del Grado en I. Informatica? (Si/No)" crlf)
+  (bind ?res (read))
+  (while (and (neq ?res Si) (neq ?res No))
+    (printout t "Respuesta incorrecta. Repita (Si/No)." crlf)
+    (bind ?res (read)))
+  (if (eq ?res Si) then (focus ASIGNATURAS)))
 )
 
 ;;; Rama de Computación y Sistemas Inteligentes ;;;
@@ -447,8 +461,9 @@
 ;;; Método para imprimir un consejo ;;;
 
 (defrule ASIGNATURAS::imprime_consejo_seguro
+  (declare (salience 10))
   (ListoParaAconsejar TRUE)
-  (Consejo ?i ?r ?experto)
+  ?g <- (Consejo ?i ?r ?experto)
   (test (neq ?r por_defecto))
   (Asignatura ?a ?i ?c1 ?c2 ? ? ?)
 
@@ -458,15 +473,15 @@
 =>
   (printout t crlf)
   (printout t ?experto " te aconseja la Asignatura " ?a " (" ?i ") del curso " ?c1 " y cuatrimestre " ?c2 "." crlf)
-  (printout t "Razonamiento: " ?r "." crlf)
+  (printout t "Razonamiento: por ser " ?r "." crlf)
   (retract ?f)
+  (retract ?g)
   (assert (ContadorAconsejadas ?c2 (+ 1 ?n)))
-  ;(focus RAMAS)
 )
 
 (defrule ASIGNATURAS::imprime_consejo_por_defecto
   (ListoParaAconsejar TRUE)
-  (Consejo ?i por_defecto ?experto)
+  ?g <- (Consejo ?i por_defecto ?experto)
   (Asignatura ?a ?i ?c1 ?c2 ? ? ?)
 
   (AsigDeseadas ?c2 ?d)
@@ -475,10 +490,10 @@
 =>
   (printout t crlf)
   (printout t ?experto " te aconseja la Asignatura " ?a " (" ?i ") del curso " ?c1 " y cuatrimestre " ?c2 "." crlf)
-  (printout t "Razonamiento: por defecto." ?r "." crlf)
+  (printout t "Razonamiento: por defecto." crlf)
   (retract ?f)
+  (retract ?g)
   (assert (ContadorAconsejadas ?c2 (+ 1 ?n)))
-  ;(focus RAMAS)
 )
 
 ;; Inicializamos el contador
@@ -640,12 +655,13 @@
 )
 
 (defrule ASIGNATURAS::Fin_cuatri
-  (declare (salience 99))
+  (declare (salience 999))
   (ListoParaAconsejar FALSE)
-  (AsigExistentes ?c ?n)
+  (AsigExistentes ?c ?ne)
   (AsigDeseadas ?c ?d)
+  (ContadorConsejosSeguros ?c ?ns)
   (not (FinCuatri ?c))
-  (test (<= ?n ?d))
+  (test (or (<= ?ne ?d) (and (<= ?d ?ns) (neq ?ns 0))))
 =>
   (assert (FinCuatri ?c))
 )
@@ -667,23 +683,26 @@
   (not (and (AsigDeseadas ? ?n) (test (eq ?n -1))))
   (SoloConsideradas TRUE)
 =>
-  (printout t "Prefiere asignaturas con un caracter teorico o practico (Teorico/Practico/Fin):" crlf)
+  (printout t "Prefiere asignaturas con mas teoricas o mas practicas (Teorica/Practica/Fin):" crlf)
   (bind ?res (read))
-  (while (and (neq ?res Teorico) (neq ?res Practico) (neq ?res Fin))
-    (printout t "Respuesta incorrecta. Repita (Teorico/Practico/Fin)." crlf)
+  (while (and (neq ?res Teorica) (neq ?res Practica) (neq ?res Fin))
+    (printout t "Respuesta incorrecta. Repita (Teorica/Practica/Fin)." crlf)
     (bind ?res (read)))
   (if (eq ?res Fin) then (retract ?f) (assert (ListoParaAconsejar TRUE))
   else (assert (Caracter ?res)))
 )
 
-(defrule ASIGNATURAS::Teorico_Practico
+(defrule ASIGNATURAS::Teorica_Practica
   (declare (salience 10))
   (Caracter ?car)
-  (Asignatura ?a ?i ? ? ?car ? ?)
+  (Asignatura ?a ?i ? ?c ?car ? ?)
   ?f <- (Consejo ?i por_defecto ?e)
+  ?g <- (ContadorConsejosSeguros ?c ?n)
 =>
   (retract ?f)
+  (retract ?g)
   (assert (Consejo ?i ?car ?e))
+  (assert (ContadorConsejosSeguros ?c (+ 1 ?n)))
 )
 
 ;; Dificultad Fácil/Difícil
@@ -706,11 +725,14 @@
 (defrule ASIGNATURAS::Facil_Dificil
   (declare (salience 10))
   (Dificultad ?dif)
-  (Asignatura ?a ?i ? ? ? ?dif ?)
+  (Asignatura ?a ?i ? ?c ? ?dif ?)
   ?f <- (Consejo ?i por_defecto ?e)
+  ?g <- (ContadorConsejosSeguros ?c ?n)
 =>
   (retract ?f)
+  (retract ?g)
   (assert (Consejo ?i ?dif ?e))
+  (assert (ContadorConsejosSeguros ?c (+ 1 ?n)))
 )
 
 ;; Trabajo Mucho/Poco
@@ -734,9 +756,26 @@
 (defrule ASIGNATURAS::Mucho_Poco
   (declare (salience 10))
   (Trabajo ?tra)
-  (Asignatura ?a ?i ? ? ? ? ?tra)
+  (Asignatura ?a ?i ? ?c ? ? ?tra)
   ?f <- (Consejo ?i por_defecto ?e)
+  ?g <- (ContadorConsejosSeguros ?c ?n)
 =>
   (retract ?f)
+  (retract ?g)
   (assert (Consejo ?i ?tra ?e))
+  (assert (ContadorConsejosSeguros ?c (+ 1 ?n)))
+)
+
+(defrule ASIGNATURAS::Ir_Ramas
+  (declare (salience -9999))
+  (Elige ?e)
+  (ListoParaAconsejar TRUE)
+=>
+  (printout t crlf)
+  (if (neq ?e 1) then (printout t "Quiere consejo acerca de la Rama del Grado en I. Informatica? (Si/No)" crlf)
+  (bind ?res (read))
+  (while (and (neq ?res Si) (neq ?res No))
+    (printout t "Respuesta incorrecta. Repita (Si/No)." crlf)
+    (bind ?res (read)))
+  (if (eq ?res Si) then (focus RAMAS)))
 )
