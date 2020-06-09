@@ -713,7 +713,7 @@
   (SoloConsideradas TRUE)
   (Caracter ?)
 =>
-  (printout t "Prefiere realizar asignaturas faciles o dificiles (Facil/Dificil/Fin):" crlf)
+  (printout t "Prefiere realizar asignaturas faciles o dificiles? (Facil/Dificil/Fin)" crlf)
   (bind ?res (read))
   (while (and (neq ?res Facil) (neq ?res Dificil) (neq ?res Fin))
     (printout t "Respuesta incorrecta. Repita (Facil/Dificil/Fin)." crlf)
@@ -744,7 +744,7 @@
   (Caracter ?)
   (Dificultad ?)
 =>
-  (printout t "Prefiere realizar asignaturas con mucho o poco trabajo (Mucho/Poco/Fin):" crlf)
+  (printout t "Prefiere realizar asignaturas con mucho o poco trabajo? (Mucho/Poco/Fin)" crlf)
   (bind ?res (read))
   (while (and (neq ?res Mucho) (neq ?res Poco) (neq ?res Fin))
     (printout t "Respuesta incorrecta. Repita (Mucho/Poco/Fin)." crlf)
